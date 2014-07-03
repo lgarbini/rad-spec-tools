@@ -7,24 +7,34 @@ lib_LTLIBRARIES = librad-spec-tools.la
 
 librad_spec_tools_la_SOURCES = \
 	HistAnalysis.cxx \
+	SDCalibrator.cxx\
+	SDFitData.cxx\
+	SDMultiLineFitter.cxx\
 	SDPeak.cxx \
 	SDPeakTSF.cxx \
-	SDPreCal.cxx 
+	SDPreCal.cxx\
+	rsptutils.cxx 
+	
+	
 
 librad_spec_tools_la_headers = \
 	HistAnalysis.h \
+	SDCalibrator.h\
+	SDFitData.h\
+	SDMultiLineFitter.h\
 	SDPeak.h \
 	SDPeakTSF.h \
-	SDPreCal.h
+	SDPreCal.h\
+	rsptutils.h
 
 pkginclude_HEADERS = $(librad_spec_tools_la_headers)
 
-# bin_PROGRAMS = rad-spec-tools
+# bin_PROGRAMS = pre_cal_test
 
-# noinst_PROGRAMS =
+ noinst_PROGRAMS =pre_cal_test
 
-# rad_spec_tools_SOURCES = rad-spec-tools.cxx
-# rad_spec_tools_LDADD = librad-spec-tools.la
+pre_cal_test_SOURCES = pre_cal_test.cxx
+pre_cal_test_LDADD = librad-spec-tools.la
 # rad_spec_tools_LDFLAGS = -static
 
 

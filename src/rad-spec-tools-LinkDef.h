@@ -15,7 +15,12 @@
 #pragma link C++ class rspt::MultiPeakShapeTSF-;
 
 // SDPreCal.h
-#pragma link C++ class SDPreCal-;
+#pragma link C++ class rspt::SDPreCal-;
+#pragma link C++ class rspt::SDCalibrator-;
+#pragma link C++ class rspt::SDMultiLineFitter-;
+#pragma link C++ class rspt::SDFitData-;
+
+//#pragma link C++ class SDPreCal-;
 
 
 #endif
