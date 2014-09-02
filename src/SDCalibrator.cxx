@@ -23,9 +23,9 @@
 namespace rspt{
 
 double SQRTQuadFunct(double *x, double *par) {
-    double y=0.0;
-    y=sqrt( pow(par[0],2) + pow(par[1],2)*x[0] + pow(par[2],2)*pow(x[0],2) );
-    return y;
+	double y=0.0;
+	y=sqrt( pow(par[0],2) + pow(par[1],2)*x[0] + pow(par[2],2)*pow(x[0],2) );
+	return y;
 }
     
 SDCalibrator::SDCalibrator()
@@ -107,22 +107,7 @@ int SDCalibrator::calibrate()
 		cal_graph->GetYaxis()->SetTitle("Channels");
 		cal_graph->GetFunction("cal_e2ch")->ResetBit(512);
 
-	//         for(int point=0;point<cal_graph->GetN();++point){
-	//             double x;
-	//             double y;
-	//             if(cal_graph->GetPoint(point,x,y)){
-	//                 if(abs(y-cal_e2ch->Eval(x))>0.01*y){
-	//                     cal_graph->RemovePoint(point);
-	//                     std::cout <<"remove point x="<<x<<",y=<<"<<y<<std::endl<<std::endl<<std::endl;
-	//                     point_removed=true;
-	//                     point--;
-	//                 }
-	//             }
-	//         }
-	//         if(point_removed==true){
-	//             return calibrate();
-	//         }
-        // Copy "cal_fit" as "calEqn" (as calibration equation) and invert it (to x=channel, y=energy)
+		// Copy "cal_fit" as "calEqn" (as calibration equation) and invert it (to x=channel, y=energy)
 		cal_ch2e = (TF1*)cal_e2ch->Clone("cal_ch2e");
 		rspt::transposePol1(&cal_ch2e);
 		m_objects->Add(cal_ch2e);
