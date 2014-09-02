@@ -233,7 +233,7 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 							std::cout<<"comp_second: "<< comp_second<<std::endl;
 							std::cout<<std::endl;
 						}
-						if(comp_second>0&&comp_second<0.20){
+						if(comp_second>0&&comp_second<0.05){
 							start.push_back(make_pair(0,i_first));
 							start.push_back(make_pair(1,i_second));
 							std::cerr<<std::endl<<"first two matches..."<<std::endl;
