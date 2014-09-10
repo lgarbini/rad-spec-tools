@@ -178,7 +178,7 @@ std::vector<rspt::SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std:
 		}
 
 		TSpectrum *spec = rspt::HistAnalysis::findPeaks(raw_hist, "", s_factor*energy[i], m_threshold);
-		TF1 *fit = rspt::HistAnalysis::fitPeaks( raw_hist, spec, "+", "", false, "pol1", s_factor*energy[i]);
+		TF1 *fit = rspt::HistAnalysis::fitPeaks( raw_hist, spec, "+Q", "", false, "pol1", s_factor*energy[i]);
 		
 		int n_tspec_peaks = spec->GetNPeaks();
 		fit->ResetBit(512);

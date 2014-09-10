@@ -210,28 +210,28 @@ TF1* SDPreCal::calcPreCal(vector< double > source_lines, vector<  double > data_
 			double data_fact_first = (data_lines[j_first] - data_lines[i_first] )/ data_lines[j_first];
 			double comp_first=abs(1-(data_fact_first/start_fact_first ));
 			if (debug) {
-				std::cout<<std::endl;
-				std::cout<<"i_first: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
-				std::cout<<"data_fact_first: "<<data_fact_first<<std::endl;
-				std::cout<<"data_lines["<<i_first<<"]: "<<data_lines[i_first]<<"\tdata_lines["<<j_first<<"]: "<<data_lines[j_first]<<std::endl;
-				std::cout<<"data_fact_first/start_fact_first: "<< data_fact_first/start_fact_first <<std::endl;
-				std::cout<<"comp_first: "<< comp_first<<std::endl;
-				std::cout<<std::endl;
+				std::cerr<<std::endl;
+				std::cerr<<"i_first: "<<i_first<<"\tj_first: "<<j_first<<std::endl;
+				std::cerr<<"data_fact_first: "<<data_fact_first<<std::endl;
+				std::cerr<<"data_lines["<<i_first<<"]: "<<data_lines[i_first]<<"\tdata_lines["<<j_first<<"]: "<<data_lines[j_first]<<std::endl;
+				std::cerr<<"data_fact_first/start_fact_first: "<< data_fact_first/start_fact_first <<std::endl;
+				std::cerr<<"comp_first: "<< comp_first<<std::endl;
+				std::cerr<<std::endl;
 			}
 			if( comp_first>0 && comp_first<0.05 ){
-				std::cout<<"i_second = "<<j_first<<std::endl;
+				std::cerr<<"i_second = "<<j_first<<std::endl;
 				for( int i_second=j_first; i_second<data_lines.size(); ++i_second ){
 					for( int j_second=j_first+1; j_second<data_lines.size(); ++j_second ){
 						double data_fact_second=(data_lines[j_second]-data_lines[i_second])/data_lines[j_second];
 						double comp_second=abs(1-(data_fact_second/start_fact_second ));
 						if (debug) {
-							std::cout<<std::endl;
-							std::cout<<"i_second: "<<i_second<<"\tj_second: "<<j_second<<std::endl;
-							std::cout<<"data_fact_second: "<<data_fact_second<<std::endl;
-							std::cout<<"data_lines["<<i_second<<"]: "<<data_lines[i_second]<<"\tdata_lines["<<j_second<<"]: "<<data_lines[j_second]<<std::endl;
-							std::cout<<"data_fact_second/start_fact_second"<< data_fact_second/start_fact_second<<std::endl;
-							std::cout<<"comp_second: "<< comp_second<<std::endl;
-							std::cout<<std::endl;
+							std::cerr<<std::endl;
+							std::cerr<<"i_second: "<<i_second<<"\tj_second: "<<j_second<<std::endl;
+							std::cerr<<"data_fact_second: "<<data_fact_second<<std::endl;
+							std::cerr<<"data_lines["<<i_second<<"]: "<<data_lines[i_second]<<"\tdata_lines["<<j_second<<"]: "<<data_lines[j_second]<<std::endl;
+							std::cerr<<"data_fact_second/start_fact_second"<< data_fact_second/start_fact_second<<std::endl;
+							std::cerr<<"comp_second: "<< comp_second<<std::endl;
+							std::cerr<<std::endl;
 						}
 						if(comp_second>0&&comp_second<0.05){
 							start.push_back(make_pair(0,i_first));
