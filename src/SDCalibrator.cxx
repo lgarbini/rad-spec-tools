@@ -20,7 +20,7 @@
 #include "SDCalibrator.h"
 
 #include <TMath.h>
-
+#include<TStyle.h>
 #include "rsptutils.h"
 
 using namespace std;
@@ -51,7 +51,7 @@ void SDCalibrator::init() {
 	cal_e2ch = 0;
 	cal_graph = 0;
 	rescal_graph = 0;
-	calCanv = 0;
+	cal_canv = 0;
 }
 
 
@@ -88,21 +88,28 @@ void SDCalibrator::addResult(SDFitData* data) {
 }
 
 int SDCalibrator::calibrate() {
+	cal_canv = new TCanvas("cal_canv", "cal_canv", 1400, 600);
+	cal_canv->Divide(2,1);
+	gStyle->SetOptFit(1111);
+
 	if (cal_graph->GetN() >= 2) {
 		bool point_removed=false;
 		cal_e2ch = new TF1("cal_e2ch","pol1",0,3000); // channel(energy)
 		cal_e2ch->SetTitle("Calibration Ch(E)");
-		cal_e2ch->SetLineColor(3);
-		cal_e2ch->SetLineWidth(1);
+		cal_e2ch->SetLineColor(2);
+		cal_e2ch->SetLineWidth(2);
 		m_objects->Add(cal_e2ch);
 
 		// Fitting resolution with option  "W": Set all weights to 1 for non empty bins; ignore error bars;
 		// R: Use the Range specified in the function range
 		// Q: Quiet
+		cal_canv->cd(1);
 		cal_graph->Fit("cal_e2ch","WRQ");
 		cal_graph->GetXaxis()->SetTitle("Energy");
-		cal_graph->GetYaxis()->SetTitle("Channels");
+		cal_graph->GetYaxis()->SetTitle("ADC");
+		cal_graph->SetMarkerStyle(21);
 		cal_graph->GetFunction("cal_e2ch")->ResetBit(512);
+		cal_graph->Draw("AP");
 
 		// Copy "cal_fit" as "calEqn" (as calibration equation) and invert it (to x=channel, y=energy)
 		cal_ch2e = (TF1*)cal_e2ch->Clone("cal_ch2e");
@@ -110,7 +117,7 @@ int SDCalibrator::calibrate() {
 		m_objects->Add(cal_ch2e);
 		cal_ch2e->SetRange(0,60000);//changed for susie
 		cal_ch2e->SetNameTitle("cal_ch2e","Calibration E(Ch)");
-		cal_ch2e->GetXaxis()->SetTitle("Channels");
+		cal_ch2e->GetXaxis()->SetTitle("ADC");
 		cal_ch2e->GetYaxis()->SetTitle("Energy");
 
 		m_intercept = cal_ch2e->GetParameter(0);
@@ -131,15 +138,18 @@ int SDCalibrator::calibrate() {
 		// R: Use the Range specified in the function range
 		// Q: Quiet
 
+		cal_canv->cd(2);
 		rescal_graph->SetTitle("Resolution calibration FWHM_{Ch}(Ch)");
 		rescal_graph->GetXaxis()->SetTitle("Channels");
 		rescal_graph->GetYaxis()->SetTitle("FWHM_{Ch} / channels");
 		rescal_graph->Fit("rescal_ch2fch_lin", "0Q");
+		rescal_graph->SetMarkerStyle(21);
+		rescal_graph->Draw("AP");
 
 		rescal_ch2fch=new TF1("rescal_ch2fch", SQRTQuadFunct, 1, 10000, 3);
 		rescal_ch2fch->SetTitle("Resolution calibration FWHM_{Ch}(Ch)");
-		rescal_ch2fch->SetLineColor(4);
-		rescal_ch2fch->SetLineWidth(1);
+		rescal_ch2fch->SetLineColor(2);
+		rescal_ch2fch->SetLineWidth(2);
 		m_objects->Add(rescal_ch2fch);
 
 		rescal_ch2fch->SetParameter(0, rescal_ch2fch_lin->GetParameter(0));
@@ -157,12 +167,13 @@ int SDCalibrator::calibrate() {
 		rescal_e2fe=rspt::rescalFCh2Fe(rescal_ch2fch,cal_ch2e);
 		m_objects->Add(rescal_e2fe);
 
-		rescal_e2fe->SetLineColor(3);
-		rescal_e2fe->SetLineWidth(1);
+		rescal_e2fe->SetLineColor(2);
+		rescal_e2fe->SetLineWidth(2);
 	} else {
 		cerr << "Less than 2 point in resolution graph. Skipping fit for resolution equation." << endl;
 	}
 
+	cal_canv->Write();
 	return 1;
 }
 

@@ -51,7 +51,7 @@ protected:
 	double m_intercept;
 	double m_slope;
 
-	TCanvas *calCanv;
+	TCanvas *cal_canv;
 	TF1 *rescal_ch2fch;
 	TF1 *rescal_e2fe;
 	TF1 *cal_e2ch;
