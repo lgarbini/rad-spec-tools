@@ -69,6 +69,7 @@ SDPreCal::Stats SDPreCal::match(next_line_info next) {
 	}
 
 	Stats out=next.stats;
+	if (debug) cerr<<"next.stats.mean = "<<next.stats.mean()<<std::endl;
 	return out;
 }
 
@@ -89,12 +90,12 @@ SDPreCal::next_line_info SDPreCal::genLineInfo(next_line_info prev,int next_s,in
 
 
 std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info next, SDPreCal::Mapping prevMap, int calls) {
-	if (debug) cerr<<endl;
+	if (debug) std::cerr<<std::endl<<"CALLING genMap"<<std::endl;
 	Stats new_Stats = match(next);
 	double distance_check = new_Stats.sigma() / new_Stats.mean();
 
 	if (debug) {
-		cerr << "s_line_a: " << next.s_ind_a << "\tsline_b: " << next.s_ind_b << "\tdline_a: " << next.d_ind_a << "\tdline_b: " << next.d_ind_b << endl;
+		cerr << "s_line_a index: " << next.s_ind_a << "\tsline_b index: " << next.s_ind_b << "\tdline_a index: " << next.d_ind_a << "\tdline_b index: " << next.d_ind_b << endl;
 		cerr << "new_Stats.first.sigma(): " << new_Stats.sigma() << "\tnew_Stats.first.mean(): " << new_Stats.mean() << endl;
 		cerr << "distance_check: " << distance_check << endl;
 	}
@@ -185,10 +186,9 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 	m_source_size=m_source_collection.size();
 	m_data_size=m_data_collection.size();
 
-	Mapping start;
-	Stats stats;
-
-	next_line_info start_ind;
+	Mapping          start;
+	Stats                stats;
+	next_line_info  start_ind;
 
 	bool found_start_val = false;
 	double start_fact_first = (source_lines[1] - source_lines[0]) / source_lines[1];
@@ -255,17 +255,19 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 					continue;
 				}
 				sort( comp_secondPair_all.begin(), comp_secondPair_all.end(), compare_pair);
-				if (debug) cerr<<"best comp_second = "<<comp_secondPair_all[0].first<<" \t i_second = "<<comp_secondPair_all[0].second.first<<" , j_first = "<<comp_secondPair_all[0].second.first<<endl;
+				if (debug) cerr<<"best comp_second = "<<comp_secondPair_all[0].first<<" \t i_second = "<<comp_secondPair_all[0].second.first<<" , j_second = "<<comp_secondPair_all[0].second.second<<endl;
 				if ( comp_secondPair_all[0].first>0 && comp_secondPair_all[0].first<0.05 ) {
 					i_second_data_line = comp_secondPair_all[0].second.first;
 					j_second_data_line =  comp_secondPair_all[0].second.second;
 					start.push_back(make_pair(0, i_first_data_line));
 					start.push_back(make_pair(1, i_second_data_line));
-					cerr << endl << "first two matches..." << endl;
+					cerr<< endl << "first two matches: " << endl;
+					cerr<< "first pair: source (0, 1) \t data (" <<comp_firstPair_all[0].second.first<<", "<<comp_firstPair_all[0].second.second<<") "<<endl;
+					cerr<< "second pair: source (1, 2) \t data (" <<comp_secondPair_all[0].second.first<<", "<<comp_secondPair_all[0].second.second<<")"<<endl;
 					stats.add( (data_lines[j_first_data_line] - data_lines[i_first_data_line]) / (source_lines[1] - source_lines[0]) );
 					stats.add( (data_lines[j_second_data_line] - data_lines[i_second_data_line]) / (source_lines[2] - source_lines[1]) );
 
-					cerr << "done\n" << endl;
+					cerr<<endl<< "done\n" <<endl;
 
 					found_start_val = true;
 
@@ -289,6 +291,7 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 
 	if (found_start_val) {
 		cerr << "starting match: ch: " << data_lines[start_ind.d_ind_a] << "\tenergy: " << source_lines[start_ind.s_ind_a] << endl;
+		cerr<<"start_ind.stats.mean ="<<start_ind.stats.mean()<<endl;
 		pair<SDPreCal::Mapping, SDPreCal::Stats> map_result = genMap(start_ind, start, 1);
 		precal_graph = new TGraph();
 
