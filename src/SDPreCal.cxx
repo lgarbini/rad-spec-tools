@@ -62,7 +62,6 @@ SDPreCal::Stats SDPreCal::match(next_line_info next) {
 			cerr << "rx: " << rx << endl;
 			cerr << "sline_b: (" << next.s_ind_b << ", "<<sline_b<<")\tsline_a : (" << next.s_ind_a << ", "<<sline_a<<")\tdline_b: (" << next.d_ind_b <<", "<<dline_b<<")\tdline_a: (" << next.d_ind_a << ", "<<dline_a<<")"<<endl;
 		}
-
 		next.stats.add(rx);
 		if (debug) cerr << "new rx_mean: " << next.stats.mean() << endl;
 	} else {
@@ -101,7 +100,10 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 	if (distance_check < m_dist_thres) {
 		prevMap.push_back(next_map);
 		next.stats = new_Stats;
-		if (debug) std::cerr << "new map accepted: new_Stats.mean = "<<new_Stats.mean()<<endl;
+		if (debug) {
+			cerr << "new map accepted: new_Stats.mean = "<<new_Stats.mean()<< endl;
+			int prevMap_size = prevMap.size();
+			for (int i=0; i<prevMap_size; ++i) cerr<<"prevMap["<<i<<"] = ("<<prevMap[i].first<<","<<prevMap[i].second<<")"<<endl;
 	}
 
 	if (debug) cerr<<endl;
@@ -151,9 +153,9 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap, ++calls);
 		double error_12 = calcError(check_err_12.second);
 
-
 		if (error_11<error_12) return check_err_11;
 		else return check_err_12;
+
 	} else if (next21.s_ind_b < m_source_size && next12.d_ind_b >= m_data_size &&  next11.d_ind_b < m_data_size) {
 		if (debug) cerr << "calling 11 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b << endl;
 		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap, ++calls);
@@ -169,6 +171,7 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 	} else {
 		return make_pair(prevMap, new_Stats);
 	}
+
 }
 
 bool SDPreCal::compare_pair(std::pair<double,std::pair<int,int> > a, std::pair<double,std::pair<int,int> > b){
@@ -260,7 +263,7 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 					cerr<< "first pair: source (0, 1) \t data (" <<comp_firstPair_all[0].second.first<<", "<<comp_firstPair_all[0].second.second<<") "<<endl;
 					cerr<< "second pair: source (1, 2) \t data (" <<comp_secondPair_all[0].second.first<<", "<<comp_secondPair_all[0].second.second<<")"<<endl;
 					stats.add( (data_lines[j_first_data_line] - data_lines[i_first_data_line]) / (source_lines[1] - source_lines[0]) );
-					stats.add( (data_lines[j_second_data_line] - data_lines[i_second_data_line]) / (source_lines[2] - source_lines[1]) );
+					//stats.add( (data_lines[j_second_data_line] - data_lines[i_second_data_line]) / (source_lines[2] - source_lines[1]) );
 
 					cerr<<endl<< "done\n" <<endl;
 
