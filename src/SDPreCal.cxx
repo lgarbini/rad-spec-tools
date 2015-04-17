@@ -34,7 +34,8 @@ SDPreCal::SDPreCal( double l_mca, double h_mca ) {
 	debug = true;
 	m_source_size = m_source_collection.size();
 	m_data_size = m_data_collection.size();
-	m_dist_thres = 0.1;
+	//m_dist_thres = 0.1;
+	m_dist_thres = 0.05;
 }
 
 
@@ -57,15 +58,15 @@ SDPreCal::Stats SDPreCal::match(next_line_info next) {
 	if ( (sline_b - sline_a != 0) && (dline_b-dline_a != 0) ) {
 		double rx = (dline_b - dline_a) / (sline_b - sline_a);
 		if (debug) {
-			cerr << "dline_b: " << dline_b << "\tdline_a: " << dline_a << "\tsline_b: " << sline_b << "\tsline_a: " << sline_a << endl;
+			cerr << "prev rx_mean: " << next.stats.mean() << endl;
 			cerr << "rx: " << rx << endl;
-			cerr << " prev rx_mean: " << next.stats.mean() << endl;
+			cerr << "sline_b: (" << next.s_ind_b << ", "<<sline_b<<")\tsline_a : (" << next.s_ind_a << ", "<<sline_a<<")\tdline_b: (" << next.d_ind_b <<", "<<dline_b<<")\tdline_a: (" << next.d_ind_a << ", "<<dline_a<<")"<<endl;
 		}
 
 		next.stats.add(rx);
-		if (debug) cerr << "rx_mean: " << next.stats.mean() << endl;
+		if (debug) cerr << "new rx_mean: " << next.stats.mean() << endl;
 	} else {
-		if (debug) cerr << "!!!!!ERROR!!!!! line are equal: sline_a: " << next.s_ind_a<<endl;
+		if (debug) cerr << "!!!!!ERROR!!!!! line are equal: sline_a: " << next.s_ind_a<<std::endl;
 	}
 
 	Stats out=next.stats;
@@ -90,22 +91,17 @@ SDPreCal::next_line_info SDPreCal::genLineInfo(next_line_info prev,int next_s,in
 
 
 std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info next, SDPreCal::Mapping prevMap, int calls) {
-	if (debug) std::cerr<<std::endl<<"CALLING genMap"<<std::endl;
+	if (debug) cerr<<endl<<"CALLING genMap"<<endl;
 	Stats new_Stats = match(next);
 	double distance_check = new_Stats.sigma() / new_Stats.mean();
-
-	if (debug) {
-		cerr << "s_line_a index: " << next.s_ind_a << "\tsline_b index: " << next.s_ind_b << "\tdline_a index: " << next.d_ind_a << "\tdline_b index: " << next.d_ind_b << endl;
-		cerr << "new_Stats.first.sigma(): " << new_Stats.sigma() << "\tnew_Stats.first.mean(): " << new_Stats.mean() << endl;
-		cerr << "distance_check: " << distance_check << endl;
-	}
+	if (debug) cerr << "distance_check: " << distance_check << endl;
 
 	pair<int, int> next_map = make_pair(next.s_ind_b, next.d_ind_b);
 
 	if (distance_check < m_dist_thres) {
 		prevMap.push_back(next_map);
 		next.stats = new_Stats;
-		if (debug) cerr << "new map accepted" << endl;
+		if (debug) std::cerr << "new map accepted: new_Stats.mean = "<<new_Stats.mean()<<endl;
 	}
 
 	if (debug) cerr<<endl;
@@ -117,25 +113,25 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 	if (next11.s_ind_b >= m_source_size && next11.d_ind_b >= m_data_size) {
 		if (debug) cerr << "return" << endl;
 		return make_pair(prevMap, new_Stats);
-	} else if ( next21.s_ind_b >= m_source_size && next12.d_ind_b >= m_data_size
-		&& next11.s_ind_b < m_source_size && next11.d_ind_b < m_data_size)
-	{
-		if(debug) cerr << "calling 11" << endl;
+
+	} else if ( next21.s_ind_b >= m_source_size && next12.d_ind_b >= m_data_size && next11.s_ind_b < m_source_size && next11.d_ind_b < m_data_size){
+	
+		if(debug) cerr << "calling 11 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b << endl;
 		return  genMap(next11, prevMap,++calls);
+
 	} else if (next21.s_ind_b < m_source_size && next12.d_ind_b < m_data_size) {
+
+		if(debug) cerr<<"calling 11 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b <<endl;
 		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap, ++calls);
-		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_21 = genMap(next21, prevMap, ++calls);
-		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap, ++calls);
-
 		double error_11=calcError(check_err_11.second);
-		double error_12=calcError(check_err_12.second);
-		double error_21=calcError(check_err_21.second);
 
-		if(debug){
-			cerr<<"calling 11"<<endl;
-			cerr<<"calling 12"<<endl;
-			cerr<<"calling 21"<<endl;
-		}
+		if (debug) cerr<<"calling 12 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b <<endl;
+		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap, ++calls);
+		double error_12=calcError(check_err_12.second);
+
+		if (debug) cerr<<"calling 21 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b <<endl;		
+		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_21 = genMap(next21, prevMap, ++calls);
+		double error_21=calcError(check_err_21.second);
 
 		if (error_11 < error_12){
 			if (error_11<error_21) return check_err_11;
@@ -146,31 +142,30 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 			return check_err_21;
 		}
 	} else if (next12.d_ind_b < m_data_size && next21.s_ind_b >= m_source_size && next11.s_ind_b < m_source_size) {
+
+		if (debug) cerr << "calling 11 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b  <<endl;
 		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap, ++calls);
-		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap, ++calls);
 		double error_11 = calcError(check_err_11.second);
+
+		if (debug) cerr << "calling 12 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b <<endl;
+		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_12 = genMap(next12, prevMap, ++calls);
 		double error_12 = calcError(check_err_12.second);
 
-		if (debug) {
-			cerr << "calling 11" << endl;
-			cerr << "calling 12" << endl;
-		}
 
 		if (error_11<error_12) return check_err_11;
 		else return check_err_12;
 	} else if (next21.s_ind_b < m_source_size && next12.d_ind_b >= m_data_size &&  next11.d_ind_b < m_data_size) {
+		if (debug) cerr << "calling 11 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b << endl;
 		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_11 = genMap(next11, prevMap, ++calls);
-		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_21 = genMap(next21, prevMap, ++calls);
 		double error_11 = calcError(check_err_11.second);
+		
+		if (debug) cerr << "calling 21 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b << endl;
+		pair<SDPreCal::Mapping, SDPreCal::Stats> check_err_21 = genMap(next21, prevMap, ++calls);
 		double error_21 = calcError(check_err_21.second);
-
-		if (debug) {
-			cerr << "calling 11" << endl;
-			cerr << "calling 21" << endl;
-		}
 
 		if (error_11<error_21) return check_err_11;
 		else return check_err_21;
+
 	} else {
 		return make_pair(prevMap, new_Stats);
 	}
@@ -290,8 +285,8 @@ TF1* SDPreCal::calcPreCal(std::vector<double> source_lines, std::vector<double> 
 
 
 	if (found_start_val) {
-		cerr << "starting match: ch: " << data_lines[start_ind.d_ind_a] << "\tenergy: " << source_lines[start_ind.s_ind_a] << endl;
-		cerr<<"start_ind.stats.mean ="<<start_ind.stats.mean()<<endl;
+		cerr << "starting match: ADC = " << data_lines[start_ind.d_ind_a] << "\tenergy = " << source_lines[start_ind.s_ind_a] <<endl;
+		cerr<<endl;
 		pair<SDPreCal::Mapping, SDPreCal::Stats> map_result = genMap(start_ind, start, 1);
 		precal_graph = new TGraph();
 
