@@ -138,11 +138,9 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 		if (error_11 < error_12){
 			if (error_11<error_21) return check_err_11;
 			else return check_err_21;
-		} else if (error_12 < error_21) {
-			return check_err_12;
-		} else {
-			return check_err_21;
-		}
+		} else if (error_12 < error_21) return check_err_12;
+		else return check_err_21;
+
 	} else if (next12.d_ind_b < m_data_size && next21.s_ind_b >= m_source_size && next11.s_ind_b < m_source_size) {
 
 		if (debug) cerr << "calling 11 from s_ind_b "<<next.s_ind_b<<" and d_ind_b "<<next.d_ind_b  <<endl;
@@ -171,7 +169,6 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 	} else {
 		return make_pair(prevMap, new_Stats);
 	}
-
 }
 
 bool SDPreCal::compare_pair(std::pair<double,std::pair<int,int> > a, std::pair<double,std::pair<int,int> > b){
