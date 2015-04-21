@@ -100,6 +100,10 @@ void SDMultiLineFitter::setThreshold(double thresh) {
 	else throw invalid_argument("threshold must be greater than zero");
 }
 
+void SDMultiLineFitter::setWidth(double width) {
+	if (width > 0) m_width = width;
+	else throw invalid_argument("width must be greater than zero");
+}
 
 std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit) {
 	double fitrange = m_width * m_preCalibration_e2ch->Eval(energy[iter]);

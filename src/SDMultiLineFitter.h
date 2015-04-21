@@ -39,9 +39,9 @@ public:
 
 	void setThreshold(double thresh);
 	void setSigma(float sig);
+	void setWidth(double width);
 	void setPreCal(double slope, double intercept);
 	void setPreCal(TF1 *precal_ch2e);
-	void setWidth(double width) { m_width = width; }
 	void setRange(double lowEdge, double highEdge);
 
 	void resetPreCal();
