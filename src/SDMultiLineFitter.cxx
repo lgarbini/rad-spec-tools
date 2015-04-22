@@ -94,7 +94,6 @@ void SDMultiLineFitter::setSigma(float sig) {
 	else throw invalid_argument("sigma must be greater than zero");
 }
 
-
 void SDMultiLineFitter::setThreshold(double thresh) {
 	if (thresh > 0) m_threshold = thresh;
 	else throw invalid_argument("threshold must be greater than zero");
@@ -147,8 +146,10 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	int lines_to_fit = npeaks;
 	SDFitData *result;
 
-	if (debug) for (unsigned int i = 0; i < npeaks; ++i) cerr << "energy["<<i<<"] = " << energy[i] << "\t ADC channel[" << i << "] = " << m_preCalibration_e2ch->Eval(energy[i]) << endl;
-
+	if (debug) {
+		std::cerr<<"Using the precalibration function:"<<std::endl;
+		for (unsigned int i = 0; i < npeaks; ++i) cerr << "energy["<<i<<"] = " << energy[i] << "\t ADC channel[" << i << "] = " << m_preCalibration_e2ch->Eval(energy[i]) << endl;
+	}
 	for (unsigned int i = 0; i < npeaks; ++i) {
 		double fitrange = m_width*m_preCalibration_e2ch->Eval(energy[i]);
 		pair<double,int> range_info = getRange(energy, i, lines_to_fit);
