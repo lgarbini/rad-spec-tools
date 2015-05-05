@@ -104,6 +104,7 @@ std::pair<SDPreCal::Mapping, SDPreCal::Stats> SDPreCal::genMap(next_line_info ne
 			cerr << "new map accepted: new_Stats.mean = "<<new_Stats.mean()<< endl;
 			int prevMap_size = prevMap.size();
 			for (int i=0; i<prevMap_size; ++i) cerr<<"prevMap["<<i<<"] = ("<<prevMap[i].first<<","<<prevMap[i].second<<")"<<endl;
+		}
 	}
 
 	if (debug) cerr<<endl;
