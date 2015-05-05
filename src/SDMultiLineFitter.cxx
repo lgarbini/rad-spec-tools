@@ -140,26 +140,16 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	int npeaks = energy.size();
 	if ( m_low_limit < m_high_limit ) raw_hist->GetXaxis()->SetRangeUser(m_low_limit, m_high_limit);
 
-	TSpectrum *spec = new TSpectrum();
-	spec->SetResolution(m_sigma);
-
 	int lines_to_fit = npeaks;
 	SDFitData *result;
 
-	if (debug) {
-		std::cerr<<"Using the precalibration function:"<<std::endl;
-		for (unsigned int i = 0; i < npeaks; ++i) cerr << "energy["<<i<<"] = " << energy[i] << "\t ADC channel[" << i << "] = " << m_preCalibration_e2ch->Eval(energy[i]) << endl;
-	}
 	for (unsigned int i = 0; i < npeaks; ++i) {
 		double fitrange = m_width*m_preCalibration_e2ch->Eval(energy[i]);
 		pair<double,int> range_info = getRange(energy, i, lines_to_fit);
 
 		lines_to_fit -= range_info.second;
 
-		raw_hist->GetXaxis()->SetRangeUser(
-			m_preCalibration_e2ch->Eval(energy[i])-fitrange,
-			m_preCalibration_e2ch->Eval(energy[i]) + range_info.first
-		);
+		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange, m_preCalibration_e2ch->Eval(energy[i]) + range_info.first);
 
 		if (debug) {
 			cerr << " " << endl;
