@@ -46,8 +46,7 @@ public:
 
 	void resetPreCal();
 
-	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy,
-		double s_factor=0.0099, std::vector<bool> *reject_res_cal=0);
+	std::vector<rspt::SDFitData*> makeCalFits(TH1* raw_hist, std::vector<double> energy, double s_factor=0.0099, std::vector<bool> *reject_res_cal=0);
 
 	double m_maxADCch;
 
@@ -67,7 +66,7 @@ protected:
 
 	void init();
 
-	std::pair<double, int> getRange(std::vector<double> energy, int iter, int lines_to_fit);
+	std::pair<double, int> getRange(std::vector<double> energy, int iter, int lines_to_use);
 };
 
 

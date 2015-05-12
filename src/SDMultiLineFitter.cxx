@@ -104,33 +104,28 @@ void SDMultiLineFitter::setWidth(double width) {
 	else throw invalid_argument("width must be greater than zero");
 }
 
-std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_fit) {
+std::pair<double, int> SDMultiLineFitter::getRange(std::vector<double> energy,int iter,int lines_to_use) {
 	double fitrange = m_width * m_preCalibration_e2ch->Eval(energy[iter]);
 	double extended_fitrange = fitrange;
 
-	int fitted_lines = 1;
-	if (iter < lines_to_fit - 1) {
+	int lines_in_range = 1;
+	if (iter < lines_to_use - 1) {
 		while (true) {
-			if (iter!=lines_to_fit-1) {
-				if(m_preCalibration_e2ch->Eval(energy[iter])+extended_fitrange<m_preCalibration_e2ch->Eval(energy[iter+fitted_lines])) {
-					if (debug) cerr << "e2ch(E[" << iter << "])+0.05*e2ch(E[" << iter << "]) < e2ch(E[" << iter+fitted_lines << "])" << endl;
+			if (iter!=lines_to_use-1) {
+				if(m_preCalibration_e2ch->Eval(energy[iter])+extended_fitrange<m_preCalibration_e2ch->Eval(energy[iter+lines_in_range])) {
+					if (debug) cerr << "e2ch(E[" << iter << "])+0.05*e2ch(E[" << iter << "]) < e2ch(E[" << iter+lines_in_range << "]) "<< endl;
 					break;
 				}
-
-				extended_fitrange =
-					m_preCalibration_e2ch->Eval(energy[iter + fitted_lines])
-					+ fitrange - m_preCalibration_e2ch->Eval(energy[iter]);
-
-				fitted_lines++;
+				extended_fitrange = m_preCalibration_e2ch->Eval(energy[iter + lines_in_range]) + fitrange - m_preCalibration_e2ch->Eval(energy[iter]);
+				lines_in_range++;
 			} else break;
 		}
 	}
-	return make_pair(extended_fitrange, fitted_lines);
+	return make_pair(extended_fitrange, lines_in_range);
 }
 
 
-std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
-	std::vector<double> energy, double s_factor, std::vector<bool> *reject_res_cal)
+std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist, std::vector<double> energy, double s_factor, std::vector<bool> *reject_res_cal)
 {
 	if (raw_hist == 0) throw invalid_argument("raw_hist is invalid (nullptr)");
 	if (m_preCalibration_ch2e == 0) throw logic_error("No precalibration available");
@@ -140,22 +135,24 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 	int npeaks = energy.size();
 	if ( m_low_limit < m_high_limit ) raw_hist->GetXaxis()->SetRangeUser(m_low_limit, m_high_limit);
 
-	int lines_to_fit = npeaks;
+	int lines_to_use = npeaks;
+	if (debug) cerr<<"lines_to_use = "<<lines_to_use<<endl;
 	SDFitData *result;
 
 	for (unsigned int i = 0; i < npeaks; ++i) {
+		if (debug) {
+			cerr << " " << endl;
+			cerr << " ********* i = " << i << " *********" << endl;
+		}
 		double fitrange = m_width*m_preCalibration_e2ch->Eval(energy[i]);
-		pair<double,int> range_info = getRange(energy, i, lines_to_fit);
+		pair<double,int> range_info = getRange(energy, i, lines_to_use);
 
-		lines_to_fit -= range_info.second;
+		lines_to_use -= range_info.second;
 
 		raw_hist->GetXaxis()->SetRangeUser(m_preCalibration_e2ch->Eval(energy[i])-fitrange, m_preCalibration_e2ch->Eval(energy[i]) + range_info.first);
 
 		if (debug) {
-			cerr << " " << endl;
-			cerr << " ********* i = " << i << " *********" << endl;
-			cerr << "e2ch(E["<<i<<"]) = " << m_preCalibration_e2ch->Eval(energy[i]) << "\t extended_fitrange = " << range_info.first << "\t fitted_lines = " << range_info.second << endl;
-			cerr << "lines_to_fit = " << lines_to_fit << endl;
+			cerr << "e2ch(E["<<i<<"]) = " << m_preCalibration_e2ch->Eval(energy[i]) << "\t extended_fitrange = " << range_info.first << "\t lines_in_range = " << range_info.second << endl;
 			cerr << "raw_hist X axis Range User = " << m_preCalibration_e2ch->Eval(energy[i])-fitrange << ", " << m_preCalibration_e2ch->Eval(energy[i]) + range_info.first << endl;
 		}
 
@@ -170,6 +167,7 @@ std::vector<SDFitData*> SDMultiLineFitter::makeCalFits(TH1* raw_hist,
 			result = new SDFitData(fit, n_tspec_peaks);
 			desiredPeak(i, range_info.second, energy, result, m_preCalibration_ch2e);
 			fits.push_back(result);
+			cerr << "lines_to_use = " << lines_to_use << endl;
 		} else {
         	cerr << "fit failed! continue" << endl;
 		}
