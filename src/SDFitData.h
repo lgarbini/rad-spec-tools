@@ -39,6 +39,9 @@ public:
 	double getSigma(size_t index) const;
 	double getSigmaError(size_t index) const;
 
+	double getArea(size_t index) const;
+	double getAreaError(size_t index) const;
+	
 	bool getUsage(size_t index) const;
 	void setUsage(size_t index, bool use=true);
 

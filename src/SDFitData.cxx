@@ -64,7 +64,14 @@ double SDFitData::getSigmaError(size_t index) const {
 	getParError("peak%i_sigma",index);
 }
 
+double SDFitData::getArea(size_t index) const {
+	getParValue("peak%i_area", index);
+}
 
+
+double SDFitData::getAreaError(size_t index) const {
+	getParError("peak%i_area",index);
+}
 bool SDFitData::getUsage(size_t index) const {
 	if (!m_valid) throw invalid_argument("Invalid SDFitData");
 
