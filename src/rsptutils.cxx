@@ -68,7 +68,7 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 		for (int h = 1; h <= fit->getNPeaks(); h++) {
 			std::pair<double,int> peak_des;
 			peak_des = make_pair(TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))), h);
-			cerr << "h = "<<h<<", ADC= " << fit->getMean(h) << "\t energy= " << cal_ch2e->Eval(fit->getMean(h)) << "\t residual = " << TMath::Abs(energy[j] - cal_ch2e->Eval(fit->getMean(h))) << endl;
+			cerr << "h = "<<h<<", ADC= " << fit->getMean(h) << "\t energy= " << cal_ch2e->Eval(fit->getMean(h)) << "\t residual = " << peak_des.first << endl;
 			peak_des_all.push_back(peak_des);
 		}
 
