@@ -72,10 +72,13 @@ int desiredPeak(int iter, int fitted_lines, std::vector<double> energy, SDFitDat
 			peak_des_all.push_back(peak_des);
 		}
 
-		std::sort(peak_des_all.begin(), peak_des_all.end(), compare_pair);
-		if ( peak_des_all[0].first < fit_residual ) {
-			peakdesired = peak_des_all[0].second;
-			cerr<<"desired peak = "<<peakdesired<<endl;
+		if ( peak_des_all.size()>0 ){
+			std::sort(peak_des_all.begin(), peak_des_all.end(), compare_pair);
+			if ( peak_des_all[0].first < fit_residual ) {
+				peakdesired = peak_des_all[0].second;
+				cerr<<"desired peak = "<<peakdesired<<endl;
+			}
+			else continue;
 		}
 		else continue;
 
